@@ -46,7 +46,7 @@ using namespace cpp_freertos;
 
 
 list<TickHook *> TickHook::Callbacks;
-
+portMUX_TYPE tick_hook_spinlock = portMUX_INITIALIZER_UNLOCKED;
 
 TickHook::TickHook()
     : Enabled(true)
@@ -56,33 +56,33 @@ TickHook::TickHook()
 
 TickHook::~TickHook()
 {
-    taskENTER_CRITICAL();
+    portENTER_CRITICAL(&tick_hook_spinlock);
     Callbacks.remove(this);
-    taskEXIT_CRITICAL();
+    portEXIT_CRITICAL(&tick_hook_spinlock);
 }
 
 
 void TickHook::Register()
 {
-    taskENTER_CRITICAL();
+    portENTER_CRITICAL(&tick_hook_spinlock);
     Callbacks.push_front(this);
-    taskEXIT_CRITICAL();
+    portEXIT_CRITICAL(&tick_hook_spinlock);
 }
 
 
 void TickHook::Disable()
 {
-    taskENTER_CRITICAL();
+    portENTER_CRITICAL(&tick_hook_spinlock);
     Enabled = false;
-    taskEXIT_CRITICAL();
+    portEXIT_CRITICAL(&tick_hook_spinlock);
 }
 
 
 void TickHook::Enable()
 {
-    taskENTER_CRITICAL();
+    portENTER_CRITICAL(&tick_hook_spinlock);
     Enabled = true;
-    taskEXIT_CRITICAL();
+    portEXIT_CRITICAL(&tick_hook_spinlock);
 }
 
 

@@ -327,6 +327,16 @@ class Thread {
         {
             vTaskDelay(Delay);
         }
+
+        /**
+         *  Delay this thread for at least DelayMS milliseconds
+         * 
+         *  @param Delay How long to delay the thread
+         */
+        void inline DelayMS(const unsigned int DelayMS)
+        {
+            vTaskDelay(DelayMS/portTICK_PERIOD_MS);
+        }
 #endif
 
 #if (INCLUDE_vTaskDelayUntil == 1)
