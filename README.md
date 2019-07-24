@@ -1,11 +1,52 @@
 # FreeRTOS C++ for ESP-IDF
 Original project by michaelbecker is here: https://github.com/michaelbecker/freertos-addons
 
+### Documentation
+The original project documentation is here: https://michaelbecker.github.io/freertos-addons/cppdocs/html/index.html
+and is almost completely still accurate. Differences are noted below
+
 ### Why a seperate repo?
 I created this seperate repo because the original was targeted at the Linux FreeRTOS port and I didn't want to try to interfere with that by trying a PR with my changes. This makes it simpler to maintain and fix ESP-IDF only bugs. I'll try to keep up with new features from the original if possible and fix any bugs that are brought to my attention.
 
 ### What is different in this vs the original repo
 This repo should be directly capable of interfacing with an existing ESP-IDF project. I've included the component.mk and the (untested) CMakeLists.txt file that should take care of adding all of the FreeRTOS-AddoOn source and includes into your project. I've also added an esp-idf-cfg.h file which checks the local project's sdkconfig to determine whether to set assertion or exceptions for errors. The call to start the scheduler was removed from the thread class as mentioned here: https://github.com/michaelbecker/freertos-addons/issues/23 by f00bard because the IDF calls this automatically. Finally, I changed the thread(task) and workqueue constructors to use the IDF xTaskCreatePinnedToCore macro instead of the xTaskCreate and added a CoreID parameter to all relevant constructors. I've tested both thread and workqueue examples from the original project and they work fine (with some minor tweaks which I will get to below).
+
+### Differences in class constructors
+(see the original documentation for the differences among the different constructors for each class):
+Thread:
+Thread constructors now have a CoreID parameter and are defined as: 
+```C
+  Thread( const std::string Name,
+          uint16_t StackDepth,
+          UBaseType_t Priority,
+          const uint8_t CoreID);
+          
+  Thread( const char *Name,
+          uint16_t StackDepth,
+          UBaseType_t Priority,
+          const uint8_t CoreID);
+          
+  Thread( uint16_t StackDepth,
+        UBaseType_t Priority,
+        const uint8_t CoreID);
+```
+
+Work Queue:
+Work Queue constructors now have a coreID parameter which defaults to 1 if not set and are defined as:
+```C
+  WorkQueue(  const char * const Name,
+              uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
+              UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
+              UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
+              const uint8_t CoreID = 1);
+              
+ WorkQueue(  uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
+            UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
+            UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
+            const uint8_t CoreID = 1);
+```
+
+Remember that you must implement a class that inherits from Thread that implements the Run() method as shown in the example below. 
 
 ### How to use:
 Your project structure should follow the basic layout of the ESP-IDF template project here: https://github.com/espressif/esp-idf-template. In the project directory (not main, the one enclosing that) add a components directory. You can paste, git clone, etc. this project into the components directory so it looks similar to this:
