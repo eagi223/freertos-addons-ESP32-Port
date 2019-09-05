@@ -276,6 +276,29 @@ class Thread {
         }
 #endif
 
+#if (INCLUDE_vTaskDelay == 1)
+        /**
+         *  Delay this thread for at least Delay ticks.
+         *
+         *  @param Delay How long to delay the thread.
+         */
+        static void inline Delay(const TickType_t Delay)
+        {
+            vTaskDelay(Delay);
+        }
+
+        /**
+         *  Delay this thread for at least DelayMS milliseconds
+         * 
+         *  @param Delay How long to delay the thread
+         */
+        static void inline DelayMS(const unsigned int DelayMS)
+        {
+            vTaskDelay(DelayMS/portTICK_PERIOD_MS);
+        }
+#endif
+
+
     /////////////////////////////////////////////////////////////////////////
     //
     //  Protected API
@@ -317,27 +340,27 @@ class Thread {
          */
 #endif
 
-#if (INCLUDE_vTaskDelay == 1)
-        /**
-         *  Delay this thread for at least Delay ticks.
-         *
-         *  @param Delay How long to delay the thread.
-         */
-        void inline Delay(const TickType_t Delay)
-        {
-            vTaskDelay(Delay);
-        }
+// #if (INCLUDE_vTaskDelay == 1)
+//         /**
+//          *  Delay this thread for at least Delay ticks.
+//          *
+//          *  @param Delay How long to delay the thread.
+//          */
+//         static void inline Delay(const TickType_t Delay)
+//         {
+//             vTaskDelay(Delay);
+//         }
 
-        /**
-         *  Delay this thread for at least DelayMS milliseconds
-         * 
-         *  @param Delay How long to delay the thread
-         */
-        void inline DelayMS(const unsigned int DelayMS)
-        {
-            vTaskDelay(DelayMS/portTICK_PERIOD_MS);
-        }
-#endif
+//         /**
+//          *  Delay this thread for at least DelayMS milliseconds
+//          * 
+//          *  @param Delay How long to delay the thread
+//          */
+//         static void inline DelayMS(const unsigned int DelayMS)
+//         {
+//             vTaskDelay(DelayMS/portTICK_PERIOD_MS);
+//         }
+// #endif
 
 #if (INCLUDE_vTaskDelayUntil == 1)
         /**
