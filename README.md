@@ -9,26 +9,26 @@ and is almost completely still accurate. Differences are noted below
 I created this seperate repo because the original was targeted at the Linux FreeRTOS port and I didn't want to try to interfere with that by trying a PR with my changes. This makes it simpler to maintain and fix ESP-IDF only bugs. I'll try to keep up with new features from the original if possible and fix any bugs that are brought to my attention.
 
 ### What is different in this vs the original repo
-This repo should be directly capable of interfacing with an existing ESP-IDF project. I've included the component.mk and the (untested) CMakeLists.txt file that should take care of adding all of the FreeRTOS-AddoOn source and includes into your project. I've also added an esp-idf-cfg.h file which checks the local project's sdkconfig to determine whether to set assertion or exceptions for errors. The call to start the scheduler was removed from the thread class as mentioned here: https://github.com/michaelbecker/freertos-addons/issues/23 by f00bard because the IDF calls this automatically. Finally, I changed the thread(task) and workqueue constructors to use the IDF xTaskCreatePinnedToCore macro instead of the xTaskCreate and added a CoreID parameter to all relevant constructors. I've tested both thread and workqueue examples from the original project and they work fine (with some minor tweaks which I will get to below).
+This repo should be directly capable of interfacing with an existing ESP-IDF project. I've included the component.mk and the (untested) CMakeLists.txt file that should take care of adding all of the FreeRTOS-AddoOn source and includes into your project. I've also added an esp-idf-cfg.h file which checks the local project's sdkconfig to determine whether to set assertion or exceptions for errors. The call to start the scheduler was removed from the thread class as mentioned here: https://github.com/michaelbecker/freertos-addons/issues/23 by f00bard because the IDF calls this automatically. Finally, I changed the thread(task) and workqueue constructors to use the IDF xTaskCreatePinnedToCore macro instead of the xTaskCreate and added a coreID parameter to all relevant constructors. I've tested both thread and workqueue examples from the original project and they work fine (with some minor tweaks which I will get to below).
 
 ### Differences in class constructors
 (see the original documentation for the differences among the different constructors for each class):
 Thread:
-Thread constructors now have a CoreID parameter and are defined as: 
+Thread constructors now have a coreID parameter and are defined as: 
 ```C
   Thread( const std::string Name,
           uint16_t StackDepth,
           UBaseType_t Priority,
-          const uint8_t CoreID);
+          core_id_t coreID);
           
   Thread( const char *Name,
           uint16_t StackDepth,
           UBaseType_t Priority,
-          const uint8_t CoreID);
+          core_id_t coreID);
           
   Thread( uint16_t StackDepth,
         UBaseType_t Priority,
-        const uint8_t CoreID);
+        core_id_t coreID);
 ```
 
 Work Queue:
@@ -38,12 +38,12 @@ Work Queue constructors now have a coreID parameter which defaults to 1 if not s
               uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
               UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
               UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
-              const uint8_t CoreID = 1);
+              core_id_t coreID = APP_CPU);
               
  WorkQueue(  uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
             UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
             UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
-            const uint8_t CoreID = 1);
+            core_id_t coreID = APP_CPU);
 ```
 
 Remember that you must implement a class that inherits from Thread that implements the Run() method as shown in the example below. 
@@ -122,10 +122,10 @@ class TestThread : public Thread {
         // The original example uses a thread with a stack of 100
         // That causes crashes for me, so I bumped it up to 1000
 
-        // Notice we've added the parameter 1 which is the 
-        // CoreID to the original example
+        // Notice we've added the parameter APP_CPU which is the 
+        // coreID to the original example
         TestThread(int i, int delayInSeconds)
-           : Thread("TestThread", 1000, 3, 1),
+           : Thread("TestThread", 1000, 3, APP_CPU),
              id (i), 
              DelayInSeconds(delayInSeconds)
         {
@@ -142,10 +142,10 @@ class TestThread : public Thread {
             //  Low priority work queue - lower than this thread
             //
 
-            // Notice we've added the parameter 1 which is the 
-            // CoreID to the original example
+            // Notice we've added the parameter APP_CPU which is the 
+            // coreID to the original example
 
-            WorkQueue wq_low("wq_low", DEFAULT_WORK_QUEUE_STACK_SIZE, 1);
+            WorkQueue wq_low("wq_low", DEFAULT_WORK_QUEUE_STACK_SIZE, APP_CPU);
 
             //
             //  High priority work queue - higher than this thread

@@ -43,8 +43,8 @@
 
 using namespace cpp_freertos;
 
-
-volatile bool Thread::SchedulerActive = false;
+// In ESP-IDF, the scheduler is already started before app_main()
+volatile bool Thread::SchedulerActive = true; 
 MutexStandard Thread::StartGuardLock;
 
 
@@ -56,12 +56,12 @@ MutexStandard Thread::StartGuardLock;
 Thread::Thread( const std::string pcName,
                 uint16_t usStackDepth,
                 UBaseType_t uxPriority,
-                const uint8_t coreID)
+                core_id_t coreID)
     :   Name(pcName), 
         StackDepth(usStackDepth), 
         Priority(uxPriority),
         ThreadStarted(false),
-        CoreID(coreID)
+        coreID(coreID)
 {
 #if (INCLUDE_vTaskDelayUntil == 1)
     delayUntilInitialized = false;
@@ -71,12 +71,12 @@ Thread::Thread( const std::string pcName,
 
 Thread::Thread( uint16_t usStackDepth,
                 UBaseType_t uxPriority,
-                const uint8_t coreID)
+                core_id_t coreID)
     :   Name("Default"), 
         StackDepth(usStackDepth), 
         Priority(uxPriority),
         ThreadStarted(false),
-        CoreID(coreID)
+        coreID(coreID)
 {
 #if (INCLUDE_vTaskDelayUntil == 1)
     delayUntilInitialized = false;
@@ -91,11 +91,11 @@ Thread::Thread( uint16_t usStackDepth,
 Thread::Thread( const char *pcName,
                 uint16_t usStackDepth,
                 UBaseType_t uxPriority,
-                const uint8_t coreID)
+                core_id_t coreID)
     :   StackDepth(usStackDepth),
         Priority(uxPriority),
         ThreadStarted(false),
-        CoreID(coreID)
+        coreID(coreID)
 {
     for (int i = 0; i < configMAX_TASK_NAME_LEN - 1; i++) {
         Name[i] = *pcName;
@@ -113,11 +113,11 @@ Thread::Thread( const char *pcName,
 
 Thread::Thread( uint16_t usStackDepth,
                 UBaseType_t uxPriority,
-                const uint8_t coreID)
+                core_id_t coreID)
     :   StackDepth(usStackDepth),
         Priority(uxPriority),
         ThreadStarted(false),
-        CoreID(coreID)
+        coreID(coreID)
 {
     memset(Name, 0, sizeof(Name));
 #if (INCLUDE_vTaskDelayUntil == 1)
@@ -165,7 +165,7 @@ bool Thread::Start()
                                 this,
                                 Priority,
                                 &handle,
-                                CoreID);
+                                coreID);
 #else 
 
     BaseType_t rc = xTaskCreatePinnedToCore(TaskFunctionAdapter,
@@ -174,7 +174,7 @@ bool Thread::Start()
                                 this,
                                 Priority,
                                 &handle,
-                                CoreID);
+                                coreID);
 #endif
 
     return rc != pdPASS ? false : true;
