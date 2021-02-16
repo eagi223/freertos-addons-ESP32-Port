@@ -2,8 +2,8 @@
 SRCDIRS := freertos-addons-master/c/Source 
 SRCDIRS += freertos-addons-master/c++/Source 
 
-INCLDIRS := freertos-addons-master/c/Source/Include 
-INCLDIRS += freertos-addons-master/c++/Source/Include
+INCLDIRS := freertos-addons-master/c/Source/include 
+INCLDIRS += freertos-addons-master/c++/Source/include
 INCLDIRS += freertos-addons-master
 
 COMPONENT_ADD_INCLUDEDIRS := $(INCLDIRS)

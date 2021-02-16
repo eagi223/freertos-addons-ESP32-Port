@@ -153,7 +153,7 @@ class WorkQueue {
                     uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
                     UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
                     UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
-                    const uint8_t CoreID = 1);
+                    core_id_t coreID = APP_CPU);
 
         /**
          *  Constructor to create an unnamed WorkQueue.
@@ -167,7 +167,7 @@ class WorkQueue {
         WorkQueue(  uint16_t StackDepth = DEFAULT_WORK_QUEUE_STACK_SIZE,
                     UBaseType_t Priority = DEFAULT_WORK_QUEUE_PRIORITY,
                     UBaseType_t MaxWorkItems = DEFAULT_MAX_WORK_ITEMS,
-                    const uint8_t CoreID = 1);
+                    core_id_t coreID = APP_CPU);
 
 #if (INCLUDE_vTaskDelete == 1)
         /**
@@ -218,12 +218,12 @@ class WorkQueue {
                 CWorkerThread(  const char * const Name,
                                 uint16_t StackDepth,
                                 UBaseType_t Priority,
-                                const uint8_t CoreID,
+                                core_id_t coreID,
                                 WorkQueue *Parent);
 
                 CWorkerThread(  uint16_t StackDepth,
                                 UBaseType_t Priority,
-                                const uint8_t CoreID,
+                                core_id_t coreID,
                                 WorkQueue *Parent);
 
                 virtual ~CWorkerThread();

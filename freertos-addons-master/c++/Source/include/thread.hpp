@@ -68,6 +68,11 @@
 
 namespace cpp_freertos {
 
+// Using espressif's naming convention
+enum core_id_t {
+   PRO_CPU = 0,
+   APP_CPU = 1     
+};
 
 /**
  *  Wrapper class around FreeRTOS's implementation of a task.
@@ -97,18 +102,18 @@ class Thread {
          *  @param Name Name of the thread. Only useful for debugging.
          *  @param StackDepth Number of "words" allocated for the Thread stack.
          *  @param Priority FreeRTOS priority of this Thread.
-         *  @param ESP-IDF Core ID (0 for Pro, 1 for App)
+         *  @param ESP-IDF Core ID (PRO_CPU or APP_CPU)
          */
 #ifndef CPP_FREERTOS_NO_CPP_STRINGS
         Thread( const std::string Name,
                 uint16_t StackDepth,
                 UBaseType_t Priority,
-                const uint8_t CoreID);
+                core_id_t coreID);
 #else
         Thread( const char *Name,
                 uint16_t StackDepth,
                 UBaseType_t Priority,
-                const uint8_t CoreID);
+                core_id_t coreID);
 #endif
 
         /**
@@ -116,11 +121,11 @@ class Thread {
          *
          *  @param StackDepth Number of "words" allocated for the Thread stack.
          *  @param Priority FreeRTOS priority of this Thread.
-         *  @param ESP-IDF Core ID (0 for Pro, 1 for App)
+         *  @param ESP-IDF Core ID (PRO_CPU or APP_CPU)
          */
         Thread( uint16_t StackDepth,
                 UBaseType_t Priority,
-                const uint8_t CoreID);
+                core_id_t coreID);
 
         /**
          *  Starts a thread.
@@ -173,8 +178,9 @@ class Thread {
          */
         static inline void StartScheduler()
         {
-            SchedulerActive = true;
-            // vTaskStartScheduler();
+        // In ESP-IDF, the scheduler is already started before app_main()
+        //     SchedulerActive = true;
+        //     vTaskStartScheduler();
         }
 
         /**
@@ -188,8 +194,9 @@ class Thread {
          */
         static inline void EndScheduler()
         {
-            vTaskEndScheduler();
-            SchedulerActive = false;
+        // vTaskEndScheduler has only been implemented for the x86 Real Mode PC port.
+        //     vTaskEndScheduler();
+        //     SchedulerActive = false;
         }
 
 #if (INCLUDE_vTaskSuspend == 1)
@@ -450,7 +457,7 @@ class Thread {
         /**
          *  Esp-Idf core ID
          */
-        const uint8_t CoreID;
+        core_id_t coreID;
 
         /**
          *  Make sure no one calls Start more than once.
