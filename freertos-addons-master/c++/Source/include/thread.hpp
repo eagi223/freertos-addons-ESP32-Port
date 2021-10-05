@@ -71,7 +71,8 @@ namespace cpp_freertos {
 // Using espressif's naming convention
 enum core_id_t {
    PRO_CPU = 0,
-   APP_CPU = 1     
+   APP_CPU = 1,
+   NO_AFFINITY = tskNO_AFFINITY     
 };
 
 /**

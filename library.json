@@ -1,0 +1,8 @@
+{
+    "build":
+    {
+        "flags":"-I ./freertos-addons-master",
+        "includeDir": "./freertos-addons-master/c++/Source/include",
+        "srcDir": "./freertos-addons-master/c++/Source"     
+    }    
+}
