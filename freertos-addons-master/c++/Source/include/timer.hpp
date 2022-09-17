@@ -113,6 +113,20 @@ class Timer {
     /////////////////////////////////////////////////////////////////////////
     public:
         /**
+         *  Get the current time in ticks.
+         *
+         *  @returns the current time in ticks.
+         */
+        static TickType_t GetCurrentTime();
+
+        /**
+         *  Get the current time in ticks from ISR context.
+         *
+         *  @returns the current time in ticks.
+         */
+        static TickType_t GetCurrentTimeFromISR();
+
+        /**
          *  Construct a named timer.
          *  Timers are not active after they are created, you need to
          *  activate them via Start, Reset, etc.
@@ -155,6 +169,29 @@ class Timer {
          *  @return true if the timer is active, false otherwise.
          */
         bool IsActive();
+
+        /**
+         *  Is the timer periodic?
+         *
+         *  @return true if the timer is periodic, false if ti is a one shot timer.
+         */
+        bool IsPeriodic();
+
+        /**
+         *  Get a timer's period.
+         *
+         *  @returns the period in ticks.
+         */
+        TickType_t GetPeriod();
+
+        /**
+         *  Get a timer's expiry time in ticks
+         *
+         *  @returns if active: the time in ticks at which the timer will next expire 
+         *           (which may be after the current tick count has overflowed).
+         *           if not active: undefined.
+         */
+        TickType_t GetExpiryTime();
 
         /**
          *  Start a timer. This changes the state to active.
@@ -239,6 +276,13 @@ class Timer {
          */
         bool SetPeriodFromISR(  TickType_t NewPeriod,
                                 BaseType_t *pxHigherPriorityTaskWoken);
+
+        /**
+         *  Change a timer's period.
+         *
+         *  @param Periodic True if the timer should be periodic, false if one shot.
+         */
+        void SetPeriodic(bool Periodic = true);
 
 #if (INCLUDE_xTimerGetTimerDaemonTaskHandle == 1)
         /**

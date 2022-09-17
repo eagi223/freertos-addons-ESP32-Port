@@ -43,6 +43,18 @@
 using namespace cpp_freertos;
 
 
+TickType_t Timer::GetCurrentTime()
+{
+    return xTaskGetTickCount();
+}
+
+
+TickType_t Timer::GetCurrentTimeFromISR()
+{
+    return xTaskGetTickCountFromISR();
+}
+
+    
 Timer::Timer(   const char * const TimerName,
                 TickType_t PeriodInTicks,
                 bool Periodic
@@ -93,6 +105,24 @@ Timer::~Timer()
 bool Timer::IsActive()
 {
     return xTimerIsTimerActive(handle) == pdFALSE ? false : true;
+}
+
+
+bool Timer::IsPeriodic()
+{
+    return uxTimerGetReloadMode(handle) == pdFALSE ? false : true;
+}
+
+
+TickType_t Timer::GetPeriod()
+{
+    return xTimerGetPeriod(handle);
+}
+
+
+TickType_t Timer::GetExpiryTime()
+{
+    return xTimerGetExpiryTime(handle);
 }
 
 
@@ -149,6 +179,12 @@ bool Timer::SetPeriodFromISR(   TickType_t NewPeriod,
     return xTimerChangePeriodFromISR(   handle, NewPeriod,
                                         pxHigherPriorityTaskWoken) == pdFALSE
             ? false : true;
+}
+
+
+void Timer::SetPeriodic(bool Periodic)
+{
+    vTimerSetReloadMode(handle, Periodic ? pdTRUE : pdFALSE);
 }
 
 
