@@ -46,11 +46,13 @@
 
 #if ( configUSE_TICK_HOOK == 1 )
 
+#if ( CONFIG_FREERTOS_LEGACY_HOOKS == 1 )
 /**
  *  FreeRTOS expects this function to exist and requires it to be 
  *  named as such with the following signature.
  */
 extern "C" void vApplicationTickHook(void);
+#endif 
 
 namespace cpp_freertos {
 
@@ -141,12 +143,20 @@ class TickHook {
          */
         bool Enabled;
 
+
+        /**
+         * Process all callbacks
+         */
+        static void RunAllCallbacks();
+
+    #if ( CONFIG_FREERTOS_LEGACY_HOOKS == 1 )
     /**
      *  Allow the global vApplicationTickHook() function access
      *  to the internals of this class. This simplifies the overall
      *  design.
      */
     friend void ::vApplicationTickHook();
+    #endif
 };
 
 

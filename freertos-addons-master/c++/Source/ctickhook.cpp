@@ -41,6 +41,10 @@
 
 #if ( configUSE_TICK_HOOK == 1 )
 
+#if ( CONFIG_FREERTOS_LEGACY_HOOKS != 1 )
+#include <esp_freertos_hooks.h>
+#endif
+
 using namespace std;
 using namespace cpp_freertos;
 
@@ -51,6 +55,9 @@ portMUX_TYPE tick_hook_spinlock = portMUX_INITIALIZER_UNLOCKED;
 TickHook::TickHook()
     : Enabled(true)
 {
+#if ( CONFIG_FREERTOS_LEGACY_HOOKS != 1 )
+    esp_register_freertos_tick_hook(RunAllCallbacks);
+#endif
 }
 
 
@@ -85,12 +92,7 @@ void TickHook::Enable()
     portEXIT_CRITICAL(&tick_hook_spinlock);
 }
 
-
-/**
- *  We are a friend of the Tick class, which makes this much simplier.
- */
-void vApplicationTickHook(void)
-{
+void TickHook::RunAllCallbacks() {
     for (list<TickHook *>::iterator it = TickHook::Callbacks.begin();
          it != TickHook::Callbacks.end();
          ++it) {
@@ -102,6 +104,17 @@ void vApplicationTickHook(void)
         }
     }
 }
+
+
+#if ( CONFIG_FREERTOS_LEGACY_HOOKS == 1 )
+/**
+ *  We are a friend of the Tick class, which makes this much simplier.
+ */
+void vApplicationTickHook(void)
+{
+    TickHook::RunAllCallbacks();
+}
+#endif
 
 #endif
 
